@@ -44,12 +44,24 @@ const getDistance = function (arr) {
   return distance;
 };
 
+const tripPlanner = function(tripDetails){
+  const uList = document.querySelector('my-trip');
+  uList.innerHTML = '';
+  uList.insertAdjacentHTML('afterbegin', `
+  <li>
+  <i class="fas fa-walking" aria-hidden="true"></i>Walk for 15 minutes
+  to stop #61121 - Southbound Dovercourt at Falcon Ridge
+</li>
+  `)
+}
+
 const getTrip = async function (originLat, originLong, destinationLat, destinationLong) {
   // console.log(originLat, originLong, destinationLat, destinationLong)
   const targetUrl = `https://api.winnipegtransit.com/v3/trip-planner.json?api-key=Mx1OH71vqr1d2fiyqAaw&origin=geo/${originLat},${originLong}&destination=geo/${destinationLat},${destinationLong}`;
   const response = await fetch(targetUrl);
   const data = await response.json();
   console.log(data)
+  // tripPlanner(data)
   return data;
 };
 
@@ -78,17 +90,6 @@ const finishLocation = function (featureList) {
   }
 };
 
-const tripPlanner = function(tripDetails){
-  const uList = document.querySelector('my-trip');
-  uList.innerHTML = '';
-  uList.insertAdjacentHTML('afterbegin', `
-  <li>
-  <i class="fas fa-walking" aria-hidden="true"></i>Walk for 15 minutes
-  to stop #61121 - Southbound Dovercourt at Falcon Ridge
-</li>
-  `)
-}
-
 const handlePOIClick = (e) => {
   const liElement = e.target.closest(".selected");
   const long = liElement.dataset.long;
@@ -112,6 +113,7 @@ const handlePOIClick = (e) => {
   markerLocation.setLngLat([long, lat]);
   map.flyTo({ center: [long, lat] });
 };
+
 
 const handleFormSubmit = (e) => {
   console.log(e);
