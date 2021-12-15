@@ -9,6 +9,11 @@ const map = new mapboxgl.Map({
   zoom: 12,
 });
 
+let destLong;
+let destLat;
+let originLat;
+let originLong;
+
 const coords = {
   longitude: 0,
   latitude: 0,
@@ -39,7 +44,17 @@ const getDistance = function (arr) {
   return distance;
 };
 
-const featureHtmlBuilder = function (feature) {
+const getTrip = async function (originLat, originLong, destinationLat, destinationLong) {
+  // console.log(originLat, originLong, destinationLat, destinationLong)
+  const targetUrl = `https://api.winnipegtransit.com/v3/trip-planner.json?api-key=Mx1OH71vqr1d2fiyqAaw&origin=geo/${originLat},${originLong}&destination=geo/${destinationLat},${destinationLong}`;
+  const response = await fetch(targetUrl);
+  const data = await response.json();
+  console.log(data)
+  return data;
+};
+
+
+const htmlBuilder = function (feature) {
   return `
   <li class="selected" data-long="${feature.center[0]}" data-lat="${feature.center[1]}">
           <div class="name">${feature.text}</div>
@@ -52,22 +67,48 @@ const startingLocation = function (featureList) {
   ulList.innerHTML = "";
   for (let feature of featureList) {
     // console.log(feature)
-    ulList.innerHTML += featureHtmlBuilder(feature);
+    ulList.innerHTML += htmlBuilder(feature);
   }
 };
 const finishLocation = function (featureList) {
   const ulList = document.querySelector(".destinations");
   ulList.innerHTML = "";
   for (let feature of featureList) {
-    // console.log(feature)
-    ulList.innerHTML += featureHtmlBuilder(feature);
+    ulList.innerHTML += htmlBuilder(feature);
   }
 };
+
+const tripPlanner = function(tripDetails){
+  const uList = document.querySelector('my-trip');
+  uList.innerHTML = '';
+  uList.insertAdjacentHTML('afterbegin', `
+  <li>
+  <i class="fas fa-walking" aria-hidden="true"></i>Walk for 15 minutes
+  to stop #61121 - Southbound Dovercourt at Falcon Ridge
+</li>
+  `)
+}
 
 const handlePOIClick = (e) => {
   const liElement = e.target.closest(".selected");
   const long = liElement.dataset.long;
   const lat = liElement.dataset.lat;
+  console.log(e)
+  if(e.path[2].className === 'destinations'){
+     destLong = liElement.dataset.long;
+     destLat = liElement.dataset.lat;
+    // console.log(long, lat);
+  } else if(e.path[2].className === 'origins') {
+    console.log('origin')
+     originLong = liElement.dataset.long;
+   originLat = liElement.dataset.lat;
+  }
+  console.log(originLong, originLat)
+  console.log(destLong, destLat)
+  if(originLat, originLong, destLat, destLong){
+    // console.log('complete')
+  getTrip(originLat, originLong, destLat, destLong);
+  }
   markerLocation.setLngLat([long, lat]);
   map.flyTo({ center: [long, lat] });
 };
@@ -88,11 +129,9 @@ const handleFormSubmit = (e) => {
     });
 
   } else {
-    console.log('dest')
     getGeocode(qString).then((data) => {
       const featureList = [...data.features];
       featureList.sort((a, b) => {
-        console.log(featureList)
         return getDistance(a.center) - getDistance(b.center);
       });
       finishLocation(featureList);
