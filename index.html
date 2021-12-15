@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script
+      src="https://kit.fontawesome.com/705438527d.js"
+      crossorigin="anonymous"
+    ></script>
+    <link rel="stylesheet" href="src/styles/style.css" />
+    <script defer src="src/scripts/app.js"></script>
+    <link
+      href="https://kit-free.fontawesome.com/releases/latest/css/free-v4-shims.min.css"
+      media="all"
+      rel="stylesheet"
+      id="font-awesome-5-kit-css"
+    />
+    <link
+      href="https://kit-free.fontawesome.com/releases/latest/css/free-v4-font-face.min.css"
+      media="all"
+      rel="stylesheet"
+      id="font-awesome-5-kit-css"
+    />
+    <link
+      href="https://kit-free.fontawesome.com/releases/latest/css/free.min.css"
+      media="all"
+      rel="stylesheet"
+      id="font-awesome-5-kit-css"
+    />
+    <title>Find Your Way</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.js"></script>
+    <link
+      href="https://api.tiles.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+
+      <div class="origin-container">
+        <form class="origin-form">
+          <input placeholder="Find a starting location" type="text" />
+        </form>
+  
+        <ul class="origins">
+          <li data-long="-97.1715329" data-lat="49.9256937">
+            <div class="name">Manitoba Avenue</div>
+            <div>Winnipeg</div>
+          </li>
+        </ul>
+      </div>
+  
+      <div class="destination-container">
+        <form class="destination-form">
+          <input placeholder="Choose your Destination" type="text" />
+        </form>
+  
+        <ul class="destinations">
+          <li data-long="-97.154506" data-lat="49.821786">
+            <div class="name">IGI Bbq and Sushi Bistro</div>
+            <div>1845 Pembina Hwy</div>
+          </li>
+        </ul>
+      </div>
+  
+      <div class="button-container">
+        <button class="plan-trip">Plan My Trip</button>
+      </div>
+  
+      <div class="bus-container">
+        <ul class="my-trip">
+          <li>
+            <i class="fas fa-walking" aria-hidden="true"></i>Walk for 15 minutes
+            to stop #61121 - Southbound Dovercourt at Falcon Ridge
+          </li>
+          <li>
+            <i class="fas fa-bus" aria-hidden="true"></i>Ride the Route 650
+            McGillivray for 5 minutes.
+          </li>
+          <li>
+            <i class="fas fa-ticket-alt" aria-hidden="true"></i>Transfer from stop
+            #60208 - Northbound Waverley at Buffalo to stop #60208 - Northbound
+            Waverley at Buffalo
+          </li>
+          <li>
+            <i class="fas fa-bus" aria-hidden="true"></i>Ride the Route 78
+            Waverley for 8 minutes.
+          </li>
+          <li>
+            <i class="fas fa-ticket-alt" aria-hidden="true"></i>Transfer from stop
+            #60307 - Northbound Cambridge at Corydon to stop #60692 - Eastbound
+            Corydon at Cambridge East
+          </li>
+          <li>
+            <i class="fas fa-bus" aria-hidden="true"></i>Ride the Route 18 North
+            Main-Corydon for 6 minutes.
+          </li>
+          <li>
+            <i class="fas fa-walking" aria-hidden="true"></i>Walk for 1 minutes to
+            your destination.
+          </li>
+        </ul>
+    <main style="width: 100%; height: 100%;" id="map" class="mapboxgl-map"></main>
+
+      </div>
+  </body>
+</html>
