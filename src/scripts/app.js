@@ -7,20 +7,6 @@ let destLat;
 let originLat;
 let originLong;
 
-// const coords = {
-//   longitude: 0,
-//   latitude: 0,
-// };
-
-// const markerLocation = new mapboxgl.Marker();
-
-// navigator.geolocation.getCurrentPosition((position) => {
-//   coords.longitude = position.coords.longitude;
-//   coords.latitude = position.coords.latitude;
-
-//   markerLocation.setLngLat([coords.longitude, coords.latitude]).addTo(map);
-// });
-
 const getGeocode = async function (qString) {
   const targetUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${qString}.json?bbox=-97.325875%2C49.766204%2C-96.953987%2C49.99275&limit=10&access_token=${token}`;
   const response = await fetch(targetUrl);
@@ -65,8 +51,6 @@ const getTrip = async function (
   const targetUrl = `https://api.winnipegtransit.com/v3/trip-planner.json?api-key=Mx1OH71vqr1d2fiyqAaw&origin=geo/${originLat},${originLong}&destination=geo/${destinationLat},${destinationLong}`;
   const response = await fetch(targetUrl);
   const data = await response.json();
-  console.log(data.plans);
-  console.log(data.plans[0].segments);
   uList.innerHTML = "";
   for (let segment of data.plans[0].segments) {
     tripPlanner(segment);
@@ -111,8 +95,6 @@ const finishLocation = function (featureList) {
 const handlePOIClick = (e) => {
   const liElement = e.target.closest(".itemList");
   liElement.classList.add('selected');
-  const long = liElement.dataset.long;
-  const lat = liElement.dataset.lat;
   if (e.path[2].className === "destinations") {
     destLong = liElement.dataset.long;
     destLat = liElement.dataset.lat;
@@ -137,7 +119,6 @@ const handleFormSubmit = (e) => {
   const qString = e.target[0].value;
 
   if (e.target.classList.contains("origin-form")) {
-    console.log("origin");
     getGeocode(qString).then((data) => {
       const featureList = [...data.features];
       if (featureList.length === 0) {
