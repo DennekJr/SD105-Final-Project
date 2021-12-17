@@ -1,3 +1,4 @@
+const uList = document.querySelector(".my-trip");
 const token =
   "pk.eyJ1IjoiZGVubmVranIiLCJhIjoiY2t3ejZwcnluMDI5cTJ1bXBlb2NhYWo4YiJ9.b09QMSkxPkizbvUB7ozjbg";
 
@@ -44,27 +45,54 @@ const getDistance = function (arr) {
   return distance;
 };
 
-const tripPlanner = function(tripDetails){
-  const uList = document.querySelector('my-trip');
-  uList.innerHTML = '';
-  uList.insertAdjacentHTML('afterbegin', `
-  <li>
-  <i class="fas fa-walking" aria-hidden="true"></i>Walk for 15 minutes
-  to stop #61121 - Southbound Dovercourt at Falcon Ridge
-</li>
-  `)
-}
+const tripPlanner = function (tripDetails) {
+  if (tripDetails.type === "walk" && tripDetails.to.stop) {
+    uList.insertAdjacentHTML(
+      "beforeend",
+      `
+      
+  <li><i class="fas fa-walking" aria-hidden="true"></i>${tripDetails.type} for ${tripDetails.times.durations.total} minutes to ${tripDetails.to.stop.key} ${tripDetails.to.stop.name}</li>
+  `
+    );
+  }
+   if(tripDetails.type === "ride") {
+    uList.insertAdjacentHTML('beforeend', `
+    
+    <li><i class="fas fa-bus" aria-hidden="true"></i>${tripDetails.type} the ${tripDetails.route.name} for ${tripDetails.times.durations.total} minutes</li> `)
+  }
+   if(tripDetails.type === "transfer"){
+    uList.insertAdjacentHTML('beforeend', `
+    
+    <li><i class="fas fa-ticket-alt" aria-hidden="true"></i>${tripDetails.type} the ${tripDetails.from.stop.key} ${tripDetails.from.stop.name} for ${tripDetails.times.durations.total} minutes</li> `)
+  } 
 
-const getTrip = async function (originLat, originLong, destinationLat, destinationLong) {
-  // console.log(originLat, originLong, destinationLat, destinationLong)
+  if(tripDetails.type === "walk" && tripDetails.to.destination) {
+    uList.insertAdjacentHTML('beforeend', `
+    
+    <li><i class="fas fa-walking" aria-hidden="true"></i>${tripDetails.type} for ${tripDetails.times.durations.total} minutes to your destination</li> `)
+  }
+  //  if(tripDetails.type === "walk" && !tripDetails.to.stop.name) {
+    
+  // }
+};
+
+const getTrip = async function (
+  originLat,
+  originLong,
+  destinationLat,
+  destinationLong
+) {
   const targetUrl = `https://api.winnipegtransit.com/v3/trip-planner.json?api-key=Mx1OH71vqr1d2fiyqAaw&origin=geo/${originLat},${originLong}&destination=geo/${destinationLat},${destinationLong}`;
   const response = await fetch(targetUrl);
   const data = await response.json();
-  console.log(data)
-  // tripPlanner(data)
+  console.log(data.plans);
+  console.log(data.plans[0].segments);
+  uList.innerHTML = "";
+  for (let segment of data.plans[0].segments) {
+    tripPlanner(segment);
+  }
   return data;
 };
-
 
 const htmlBuilder = function (feature) {
   return `
@@ -94,42 +122,44 @@ const handlePOIClick = (e) => {
   const liElement = e.target.closest(".selected");
   const long = liElement.dataset.long;
   const lat = liElement.dataset.lat;
-  console.log(e)
-  if(e.path[2].className === 'destinations'){
-     destLong = liElement.dataset.long;
-     destLat = liElement.dataset.lat;
+  console.log(e);
+  if (e.path[2].className === "destinations") {
+    destLong = liElement.dataset.long;
+    destLat = liElement.dataset.lat;
     // console.log(long, lat);
-  } else if(e.path[2].className === 'origins') {
-    console.log('origin')
-     originLong = liElement.dataset.long;
-   originLat = liElement.dataset.lat;
+  } else if (e.path[2].className === "origins") {
+    console.log("origin");
+    originLong = liElement.dataset.long;
+    originLat = liElement.dataset.lat;
   }
-  console.log(originLong, originLat)
-  console.log(destLong, destLat)
-  if(originLat, originLong, destLat, destLong){
+  console.log(originLong, originLat);
+  console.log(destLong, destLat);
+  if ((originLat, originLong, destLat, destLong)) {
+    document
+      .querySelector(".button-container")
+      .addEventListener("click", () => {
+        getTrip(originLat, originLong, destLat, destLong);
+      });
     // console.log('complete')
-  getTrip(originLat, originLong, destLat, destLong);
   }
   markerLocation.setLngLat([long, lat]);
   map.flyTo({ center: [long, lat] });
 };
 
-
 const handleFormSubmit = (e) => {
   console.log(e);
   e.preventDefault();
   const qString = e.target[0].value;
-    
-  if(e.target.classList.contains("origin-form")){
-    console.log('origin')
+
+  if (e.target.classList.contains("origin-form")) {
+    console.log("origin");
     getGeocode(qString).then((data) => {
       const featureList = [...data.features];
       featureList.sort((a, b) => {
         return getDistance(a.center) - getDistance(b.center);
       });
-    startingLocation(featureList);
+      startingLocation(featureList);
     });
-
   } else {
     getGeocode(qString).then((data) => {
       const featureList = [...data.features];
@@ -139,14 +169,11 @@ const handleFormSubmit = (e) => {
       finishLocation(featureList);
     });
   }
-  
 };
 
 document.forms[0].addEventListener("submit", handleFormSubmit);
 document.forms[1].addEventListener("submit", handleFormSubmit);
-document
-  .querySelector(".origins")
-  .addEventListener("click", handlePOIClick);
+document.querySelector(".origins").addEventListener("click", handlePOIClick);
 document
   .querySelector(".destinations")
   .addEventListener("click", handlePOIClick);
