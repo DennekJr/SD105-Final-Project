@@ -55,25 +55,31 @@ const tripPlanner = function (tripDetails) {
   `
     );
   }
-   if(tripDetails.type === "ride") {
-    uList.insertAdjacentHTML('beforeend', `
+  if (tripDetails.type === "ride") {
+    uList.insertAdjacentHTML(
+      "beforeend",
+      `
     
-    <li><i class="fas fa-bus" aria-hidden="true"></i>${tripDetails.type} the ${tripDetails.route.name} for ${tripDetails.times.durations.total} minutes</li> `)
+    <li><i class="fas fa-bus" aria-hidden="true"></i>${tripDetails.type} the ${tripDetails.route.name} for ${tripDetails.times.durations.total} minutes</li> `
+    );
   }
-   if(tripDetails.type === "transfer"){
-    uList.insertAdjacentHTML('beforeend', `
+  if (tripDetails.type === "transfer") {
+    uList.insertAdjacentHTML(
+      "beforeend",
+      `
     
-    <li><i class="fas fa-ticket-alt" aria-hidden="true"></i>${tripDetails.type} the ${tripDetails.from.stop.key} ${tripDetails.from.stop.name} for ${tripDetails.times.durations.total} minutes</li> `)
-  } 
+    <li><i class="fas fa-ticket-alt" aria-hidden="true"></i>${tripDetails.type} the ${tripDetails.from.stop.key} ${tripDetails.from.stop.name} for ${tripDetails.times.durations.total} minutes</li> `
+    );
+  }
 
-  if(tripDetails.type === "walk" && tripDetails.to.destination) {
-    uList.insertAdjacentHTML('beforeend', `
+  if (tripDetails.type === "walk" && tripDetails.to.destination) {
+    uList.insertAdjacentHTML(
+      "beforeend",
+      `
     
-    <li><i class="fas fa-walking" aria-hidden="true"></i>${tripDetails.type} for ${tripDetails.times.durations.total} minutes to your destination</li> `)
+    <li><i class="fas fa-walking" aria-hidden="true"></i>${tripDetails.type} for ${tripDetails.times.durations.total} minutes to your destination</li> `
+    );
   }
-  //  if(tripDetails.type === "walk" && !tripDetails.to.stop.name) {
-    
-  // }
 };
 
 const getTrip = async function (
@@ -82,6 +88,13 @@ const getTrip = async function (
   destinationLat,
   destinationLong
 ) {
+  // if (originLat === undefined || destinationLat === undefined) {
+  //   document
+  //     .querySelector(".button-container")
+  //     .addEventListener("click", () => {
+  //       alert("Please select an origin or destination");
+  //     });
+  // }
   const targetUrl = `https://api.winnipegtransit.com/v3/trip-planner.json?api-key=Mx1OH71vqr1d2fiyqAaw&origin=geo/${originLat},${originLong}&destination=geo/${destinationLat},${destinationLong}`;
   const response = await fetch(targetUrl);
   const data = await response.json();
@@ -96,58 +109,70 @@ const getTrip = async function (
 
 const htmlBuilder = function (feature) {
   return `
-  <li class="selected" data-long="${feature.center[0]}" data-lat="${feature.center[1]}">
+  <li class="itemList" data-long="${feature.center[0]}" data-lat="${feature.center[1]}">
           <div class="name">${feature.text}</div>
           <div>${feature.properties.address}</div>
         </li>`;
 };
 
 const startingLocation = function (featureList) {
-  const ulList = document.querySelector(".origins");
-  ulList.innerHTML = "";
+  const originList = document.querySelector(".origins");
+  originList.innerHTML = "";
   for (let feature of featureList) {
-    // console.log(feature)
-    ulList.innerHTML += htmlBuilder(feature);
+    originList.innerHTML += htmlBuilder(feature);
   }
 };
+
 const finishLocation = function (featureList) {
-  const ulList = document.querySelector(".destinations");
-  ulList.innerHTML = "";
+  const destList = document.querySelector(".destinations");
+  destList.innerHTML = "";
   for (let feature of featureList) {
-    ulList.innerHTML += htmlBuilder(feature);
+    destList.innerHTML += htmlBuilder(feature);
   }
 };
 
 const handlePOIClick = (e) => {
-  const liElement = e.target.closest(".selected");
+  // e.target.parentElement.parentElement.children.forEach(element => {
+    // console.log(e.target.parentElement.parentElement.children)
+    console.log(document.querySelector('.origins').children)
+  // })
+  originList = document.querySelector('.origins').children;
+  destList = document.querySelector('.destinations').children;
+    for(let children of elementList){
+      console.log(children.classList)
+    children.classList.remove('selected')
+  }
+  const liElement = e.target.closest(".itemList");
+  liElement.classList.add('selected');
+  // console.log(  e.target.parentElement.parentElement.children)
   const long = liElement.dataset.long;
   const lat = liElement.dataset.lat;
-  console.log(e);
   if (e.path[2].className === "destinations") {
     destLong = liElement.dataset.long;
     destLat = liElement.dataset.lat;
-    // console.log(long, lat);
   } else if (e.path[2].className === "origins") {
-    console.log("origin");
+    // console.log("origin");
     originLong = liElement.dataset.long;
     originLat = liElement.dataset.lat;
   }
-  console.log(originLong, originLat);
-  console.log(destLong, destLat);
-  if ((originLat, originLong, destLat, destLong)) {
-    document
-      .querySelector(".button-container")
-      .addEventListener("click", () => {
-        getTrip(originLat, originLong, destLat, destLong);
-      });
-    // console.log('complete')
-  }
+  // console.log(originLong, originLat);
+  // console.log(destLong, destLat);
+  document.querySelector(".button-container").addEventListener("click", () => {
+    if (
+      originLat === undefined ||
+      destLat === undefined
+    ) {
+      alert("Please input both cordinates");
+    } else {
+      getTrip(originLat, originLong, destLat, destLong);
+    }
+  });
   markerLocation.setLngLat([long, lat]);
   map.flyTo({ center: [long, lat] });
 };
 
 const handleFormSubmit = (e) => {
-  console.log(e);
+  // console.log(e);
   e.preventDefault();
   const qString = e.target[0].value;
 
@@ -158,11 +183,17 @@ const handleFormSubmit = (e) => {
       featureList.sort((a, b) => {
         return getDistance(a.center) - getDistance(b.center);
       });
+      if (featureList.length === 0) {
+        alert("No result found");
+      }
       startingLocation(featureList);
     });
   } else {
     getGeocode(qString).then((data) => {
       const featureList = [...data.features];
+      if (featureList.length === 0) {
+        alert("No result found");
+      }
       featureList.sort((a, b) => {
         return getDistance(a.center) - getDistance(b.center);
       });
@@ -177,3 +208,11 @@ document.querySelector(".origins").addEventListener("click", handlePOIClick);
 document
   .querySelector(".destinations")
   .addEventListener("click", handlePOIClick);
+
+document.querySelector(".plan-trip").addEventListener("click", () => {
+  if (
+    !Boolean(document.getElementById("origin").value) &&
+    !Boolean(document.getElementById("dest").value)
+  )
+    alert("Please submit locations to plan");
+});
