@@ -136,9 +136,13 @@ const handlePOIClick = (e) => {
     // console.log(e.target.parentElement.parentElement.children)
     console.log(document.querySelector('.origins').children)
   // })
-  originList = document.querySelector('.origins').children;
-  destList = document.querySelector('.destinations').children;
-    for(let children of elementList){
+  let originList = document.querySelector('.origins').children;
+  let destList = document.querySelector('.destinations').children;
+    for(let children of originList){
+      console.log(children.classList)
+    children.classList.remove('selected')
+  }
+    for(let children of destList){
       console.log(children.classList)
     children.classList.remove('selected')
   }
