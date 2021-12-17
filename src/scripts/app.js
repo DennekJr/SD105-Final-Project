@@ -2,32 +2,24 @@ const uList = document.querySelector(".my-trip");
 const token =
   "pk.eyJ1IjoiZGVubmVranIiLCJhIjoiY2t3ejZwcnluMDI5cTJ1bXBlb2NhYWo4YiJ9.b09QMSkxPkizbvUB7ozjbg";
 
-mapboxgl.accessToken = token;
-const map = new mapboxgl.Map({
-  container: "map",
-  style: "mapbox://styles/mapbox/streets-v11",
-  center: [-97.1384, 49.8951],
-  zoom: 12,
-});
-
 let destLong;
 let destLat;
 let originLat;
 let originLong;
 
-const coords = {
-  longitude: 0,
-  latitude: 0,
-};
+// const coords = {
+//   longitude: 0,
+//   latitude: 0,
+// };
 
-const markerLocation = new mapboxgl.Marker();
+// const markerLocation = new mapboxgl.Marker();
 
-navigator.geolocation.getCurrentPosition((position) => {
-  coords.longitude = position.coords.longitude;
-  coords.latitude = position.coords.latitude;
+// navigator.geolocation.getCurrentPosition((position) => {
+//   coords.longitude = position.coords.longitude;
+//   coords.latitude = position.coords.latitude;
 
-  markerLocation.setLngLat([coords.longitude, coords.latitude]).addTo(map);
-});
+//   markerLocation.setLngLat([coords.longitude, coords.latitude]).addTo(map);
+// });
 
 const getGeocode = async function (qString) {
   const targetUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${qString}.json?bbox=-97.325875%2C49.766204%2C-96.953987%2C49.99275&limit=10&access_token=${token}`;
@@ -40,35 +32,26 @@ const tripPlanner = function (tripDetails) {
   if (tripDetails.type === "walk" && tripDetails.to.stop) {
     uList.insertAdjacentHTML(
       "beforeend",
-      `
-      
-  <li><i class="fas fa-walking" aria-hidden="true"></i>${tripDetails.type} for ${tripDetails.times.durations.total} minutes to ${tripDetails.to.stop.key} ${tripDetails.to.stop.name}</li>
-  `
+      `<li><i class="fas fa-walking" aria-hidden="true"></i>${tripDetails.type} for ${tripDetails.times.durations.total} minutes to ${tripDetails.to.stop.key} ${tripDetails.to.stop.name}</li>`
     );
   }
   if (tripDetails.type === "ride") {
     uList.insertAdjacentHTML(
       "beforeend",
-      `
-    
-    <li><i class="fas fa-bus" aria-hidden="true"></i>${tripDetails.type} the ${tripDetails.route.name} for ${tripDetails.times.durations.total} minutes</li> `
+      `<li><i class="fas fa-bus" aria-hidden="true"></i>${tripDetails.type} the ${tripDetails.route.name} for ${tripDetails.times.durations.total} minutes</li> `
     );
   }
   if (tripDetails.type === "transfer") {
     uList.insertAdjacentHTML(
       "beforeend",
-      `
-    
-    <li><i class="fas fa-ticket-alt" aria-hidden="true"></i>${tripDetails.type} the ${tripDetails.from.stop.key} ${tripDetails.from.stop.name} for ${tripDetails.times.durations.total} minutes</li> `
+      `<li><i class="fas fa-ticket-alt" aria-hidden="true"></i>${tripDetails.type} the ${tripDetails.from.stop.key} ${tripDetails.from.stop.name} for ${tripDetails.times.durations.total} minutes</li> `
     );
   }
 
   if (tripDetails.type === "walk" && tripDetails.to.destination) {
     uList.insertAdjacentHTML(
       "beforeend",
-      `
-    
-    <li><i class="fas fa-walking" aria-hidden="true"></i>${tripDetails.type} for ${tripDetails.times.durations.total} minutes to your destination</li> `
+      `<li><i class="fas fa-walking" aria-hidden="true"></i>${tripDetails.type} for ${tripDetails.times.durations.total} minutes to your destination</li> `
     );
   }
 };
@@ -92,11 +75,21 @@ const getTrip = async function (
 };
 
 const htmlBuilder = function (feature) {
-  return `
+  if(feature.properties.address === undefined){
+    return `
   <li class="itemList" data-long="${feature.center[0]}" data-lat="${feature.center[1]}">
           <div class="name">${feature.text}</div>
-          <div>${feature.properties.address}</div>
+          <div>${feature.context[2].text}</div>
         </li>`;
+  } else {
+    return `
+    <li class="itemList" data-long="${feature.center[0]}" data-lat="${feature.center[1]}">
+            <div class="name">${feature.text}</div>
+            <div>${feature.properties.address}</div>
+          </li>`;
+  }
+  
+  
 };
 
 const startingLocation = function (featureList) {
@@ -116,12 +109,6 @@ const finishLocation = function (featureList) {
 };
 
 const handlePOIClick = (e) => {
-  let originList = document.querySelector('.origins').children;
-  let destList = document.querySelector('.destinations').children;
-  console.log(e.target.className)
-
-    
-    
   const liElement = e.target.closest(".itemList");
   liElement.classList.add('selected');
   const long = liElement.dataset.long;
@@ -143,8 +130,6 @@ const handlePOIClick = (e) => {
       getTrip(originLat, originLong, destLat, destLong);
     }
   });
-  markerLocation.setLngLat([long, lat]);
-  map.flyTo({ center: [long, lat] });
 };
 
 const handleFormSubmit = (e) => {
@@ -178,7 +163,6 @@ document.querySelector(".origins").addEventListener("click", (e) => {
   for(let children of originList){
     children.classList.remove('selected')
   }
-  // console.log(e.target.className);
   handlePOIClick(e);
 }
 );
@@ -187,7 +171,6 @@ document
   .addEventListener("click", (e) => {
   let destList = document.querySelector('.destinations').children;
   for(let children of destList){
-    // console.log(children.classList)
   children.classList.remove('selected')
 }
     handlePOIClick(e)
