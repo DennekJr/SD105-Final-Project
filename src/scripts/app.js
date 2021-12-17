@@ -36,15 +36,6 @@ const getGeocode = async function (qString) {
   return data;
 };
 
-const getDistance = function (arr) {
-  const [long, lat] = arr;
-  const longDiffKM = Math.abs(long - coords.longitude) * 111.319;
-  const latDiffKM = Math.abs(lat - coords.latitude) * 111.319;
-  const distance = Math.sqrt(longDiffKM ** 2 + latDiffKM ** 2);
-
-  return distance;
-};
-
 const tripPlanner = function (tripDetails) {
   if (tripDetails.type === "walk" && tripDetails.to.stop) {
     uList.insertAdjacentHTML(
@@ -88,13 +79,6 @@ const getTrip = async function (
   destinationLat,
   destinationLong
 ) {
-  // if (originLat === undefined || destinationLat === undefined) {
-  //   document
-  //     .querySelector(".button-container")
-  //     .addEventListener("click", () => {
-  //       alert("Please select an origin or destination");
-  //     });
-  // }
   const targetUrl = `https://api.winnipegtransit.com/v3/trip-planner.json?api-key=Mx1OH71vqr1d2fiyqAaw&origin=geo/${originLat},${originLong}&destination=geo/${destinationLat},${destinationLong}`;
   const response = await fetch(targetUrl);
   const data = await response.json();
@@ -132,35 +116,23 @@ const finishLocation = function (featureList) {
 };
 
 const handlePOIClick = (e) => {
-  // e.target.parentElement.parentElement.children.forEach(element => {
-    // console.log(e.target.parentElement.parentElement.children)
-    console.log(document.querySelector('.origins').children)
-  // })
   let originList = document.querySelector('.origins').children;
   let destList = document.querySelector('.destinations').children;
-    for(let children of originList){
-      console.log(children.classList)
-    children.classList.remove('selected')
-  }
-    for(let children of destList){
-      console.log(children.classList)
-    children.classList.remove('selected')
-  }
+  console.log(e.target.className)
+
+    
+    
   const liElement = e.target.closest(".itemList");
   liElement.classList.add('selected');
-  // console.log(  e.target.parentElement.parentElement.children)
   const long = liElement.dataset.long;
   const lat = liElement.dataset.lat;
   if (e.path[2].className === "destinations") {
     destLong = liElement.dataset.long;
     destLat = liElement.dataset.lat;
   } else if (e.path[2].className === "origins") {
-    // console.log("origin");
     originLong = liElement.dataset.long;
     originLat = liElement.dataset.lat;
   }
-  // console.log(originLong, originLat);
-  // console.log(destLong, destLat);
   document.querySelector(".button-container").addEventListener("click", () => {
     if (
       originLat === undefined ||
@@ -176,7 +148,6 @@ const handlePOIClick = (e) => {
 };
 
 const handleFormSubmit = (e) => {
-  // console.log(e);
   e.preventDefault();
   const qString = e.target[0].value;
 
@@ -184,9 +155,6 @@ const handleFormSubmit = (e) => {
     console.log("origin");
     getGeocode(qString).then((data) => {
       const featureList = [...data.features];
-      featureList.sort((a, b) => {
-        return getDistance(a.center) - getDistance(b.center);
-      });
       if (featureList.length === 0) {
         alert("No result found");
       }
@@ -198,9 +166,6 @@ const handleFormSubmit = (e) => {
       if (featureList.length === 0) {
         alert("No result found");
       }
-      featureList.sort((a, b) => {
-        return getDistance(a.center) - getDistance(b.center);
-      });
       finishLocation(featureList);
     });
   }
@@ -208,10 +173,25 @@ const handleFormSubmit = (e) => {
 
 document.forms[0].addEventListener("submit", handleFormSubmit);
 document.forms[1].addEventListener("submit", handleFormSubmit);
-document.querySelector(".origins").addEventListener("click", handlePOIClick);
+document.querySelector(".origins").addEventListener("click", (e) => {
+  let originList = document.querySelector('.origins').children;
+  for(let children of originList){
+    children.classList.remove('selected')
+  }
+  // console.log(e.target.className);
+  handlePOIClick(e);
+}
+);
 document
   .querySelector(".destinations")
-  .addEventListener("click", handlePOIClick);
+  .addEventListener("click", (e) => {
+  let destList = document.querySelector('.destinations').children;
+  for(let children of destList){
+    // console.log(children.classList)
+  children.classList.remove('selected')
+}
+    handlePOIClick(e)
+  });
 
 document.querySelector(".plan-trip").addEventListener("click", () => {
   if (
