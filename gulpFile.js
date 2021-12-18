@@ -1,5 +1,10 @@
 const {src, dest, series, watch} = require('gulp');
 
+
+
+const pages = () => {
+  return src('*.html').pipe(dest('dist'));
+};
 const scripts = () => {
   return src('src/scripts/*.js').pipe(dest('dist/scripts'));
 };
@@ -12,5 +17,5 @@ const watchTask = () => {
 }
 
 
-exports.default = series(scripts, styles);
+exports.default = series(scripts, styles, pages);
 exports.watch = watchTask;
