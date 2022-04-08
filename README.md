@@ -6,4 +6,3 @@ Instructions:
 - Once selected, the background will differ from the rest
 - Same goes for the destination
 - After which yoou can now plan your trip
-https://sd-105-final-project-ki0855hg8-dennekjr.vercel.app/  (Netify failed build).
